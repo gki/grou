@@ -63,7 +63,7 @@ for line in merges.splitlines():
     # Detect PR type
     info = MergeInfo(commit=str(splittedLog[0]),
                      auther=splittedLog[1],
-                     body=body,
+                     body=body.title(),
                      pr_url=url,
                      pr_num=pr_num,
                      pr_type=pr_type)
@@ -80,5 +80,8 @@ for type_ in release_dict:
               ' `{0.commit}` {0.body} by {0.auther}'.format(info))
     print('\n')
 
+# TODO html style
 
-# TODO Output
+
+# TODO Output to new file
+# TODO add to an existing file
