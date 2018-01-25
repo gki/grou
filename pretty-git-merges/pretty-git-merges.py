@@ -112,7 +112,7 @@ for line in merges.splitlines():
     release_dict[pr_type].append(info)
 
 # TODO Support multiple repos
-# TODO Convert to target style
+# Convert to target style
 if command_arguments.style == Mode.md.name:
     # markdown with full info
     for type_ in release_dict:
