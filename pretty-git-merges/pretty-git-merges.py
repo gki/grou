@@ -1,14 +1,23 @@
 # -*- coding: utf-8 -*-
 """this is test.
 
+args:
+    from
+    to
+    style
+    main-branch
+    output
 hogehoge
 """
 import subprocess
+import sys
+import argparse
 from enum import Enum
 from collections import namedtuple
 import re
 
 PrType = Enum('PrType', 'Feature BugFix Chore HotFix Unknown')
+Mode = Enum('Mode', 'MD HTML')
 
 MergeInfo = namedtuple('MergeInfo', (
     'commit',
@@ -19,20 +28,53 @@ MergeInfo = namedtuple('MergeInfo', (
     'pr_type')
 )
 
-# TODO Check arges
-"""
-args:
-    from
-    to
-    format
-    main-branch
-
-"""
-# TODO Set from-to tag or commit id
+# Check arges
+parser = argparse.ArgumentParser(
+    description='Output pretty formatted git merge info.')
+parser.add_argument('-f', '--from',
+                    type=str,
+                    dest='f',
+                    help='Git commitish as the "from" point'
+                         ' for seach merge logs.'
+                         ' This point is not included to logs.',
+                    required=False)
+parser.add_argument('-t', '--to',
+                    type=str,
+                    dest='t',
+                    help='Git commitish as the "to" point'
+                         ' for seach merge logs. Default is HEAD',
+                    default='HEAD',
+                    required=False)
+parser.add_argument('-s', '--style',
+                    type=str,
+                    help='Output style. Default is md (markdown).',
+                    choices=['md', 'html'],
+                    default='md',
+                    required=False)
+parser.add_argument('-b', '--branch',
+                    type=str,
+                    help='Git branch name for searching merge logs.'
+                         ' Default is master.',
+                    default='master',
+                    required=False)
+parser.add_argument('-o', '--output',
+                    type=str,
+                    help='Output file path. If ommitted, just show terminal.',
+                    required=False)
+command_arguments = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
 cmd = "git log --first-parent master --merges --pretty=format:'%h:%an:%b:%s'"
-merges = subprocess.check_output(cmd.split(" "))
+cmd = cmd.split(" ")
+
+# Set from-to tag or commit id
+if command_arguments.f is not None:
+    cmd.append(command_arguments.f + '..' + command_arguments.t)
+merges = subprocess.check_output(cmd)
+
+if len(merges) == 0:
+    print('There is no merge logs.')
+    sys.exit(1)
 
 release_dict = {type_: [] for type_ in PrType}
 
@@ -70,18 +112,21 @@ for line in merges.splitlines():
     release_dict[pr_type].append(info)
 
 # TODO Support multiple repos
-# print(release_dict)
 # TODO Convert to target style
 # markdown with full info
 for type_ in release_dict:
+    if len(release_dict[type_]) == 0:
+        continue
     print('# ' + type_.name)
     for info in release_dict[type_]:
         print('- [PR{0.pr_num}]({0.pr_url})'
               ' `{0.commit}` {0.body} by {0.auther}'.format(info))
     print('\n')
 
-# html style
+# html style with full info
 for type_ in release_dict:
+    if len(release_dict[type_]) == 0:
+        continue
     print('<h1>' + type_.name + '</h1>')
     print('<ul>')
     for info in release_dict[type_]:
