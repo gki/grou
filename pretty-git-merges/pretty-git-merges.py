@@ -17,7 +17,7 @@ from collections import namedtuple
 import re
 
 PrType = Enum('PrType', 'Feature BugFix Chore HotFix Unknown')
-Mode = Enum('Mode', 'MD HTML')
+Mode = Enum('Mode', 'md html')
 
 MergeInfo = namedtuple('MergeInfo', (
     'commit',
@@ -113,27 +113,31 @@ for line in merges.splitlines():
 
 # TODO Support multiple repos
 # TODO Convert to target style
-# markdown with full info
-for type_ in release_dict:
-    if len(release_dict[type_]) == 0:
-        continue
-    print('# ' + type_.name)
-    for info in release_dict[type_]:
-        print('- [PR{0.pr_num}]({0.pr_url})'
-              ' `{0.commit}` {0.body} by {0.auther}'.format(info))
-    print('\n')
-
-# html style with full info
-for type_ in release_dict:
-    if len(release_dict[type_]) == 0:
-        continue
-    print('<h1>' + type_.name + '</h1>')
-    print('<ul>')
-    for info in release_dict[type_]:
-        print('<li><a href="{0.pr_url}">[PR{0.pr_num}]</a>'
-              ' <code>{0.commit}</code> {0.body}'
-              ' by {0.auther}</li>'.format(info))
-    print('</ul>')
+if command_arguments.style == Mode.md.name:
+    # markdown with full info
+    for type_ in release_dict:
+        if len(release_dict[type_]) == 0:
+            continue
+        print('# ' + type_.name)
+        for info in release_dict[type_]:
+            print('- [PR{0.pr_num}]({0.pr_url})'
+                  ' `{0.commit}` {0.body} by {0.auther}'.format(info))
+        print('\n')
+elif command_arguments.style == Mode.html.name:
+    # html style with full info
+    for type_ in release_dict:
+        if len(release_dict[type_]) == 0:
+            continue
+        print('<h1>' + type_.name + '</h1>')
+        print('<ul>')
+        for info in release_dict[type_]:
+            print('<li><a href="{0.pr_url}">[PR{0.pr_num}]</a>'
+                  ' <code>{0.commit}</code> {0.body}'
+                  ' by {0.auther}</li>'.format(info))
+        print('</ul>')
+else:
+    print('Invalid style.')
+    sys.exit(1)
 
 # TODO Output to new file
 # TODO add to an existing file
