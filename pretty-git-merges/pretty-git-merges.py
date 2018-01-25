@@ -78,7 +78,9 @@ parser.add_argument('-o', '--output',
 command_arguments = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
-cmd = "git log --first-parent master --merges --pretty=format:'%h:%an:%b:%s'"
+# use inputted branch name
+cmd = 'git log --first-parent ' + command_arguments.branch \
+      + ' --merges --pretty=format:\'%h:%an:%b:%s\''
 cmd = cmd.split(" ")
 
 # Set from-to tag or commit id
