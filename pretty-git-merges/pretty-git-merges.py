@@ -9,12 +9,26 @@ args:
     output
 hogehoge
 """
+
+# TODO list format option (no-number no-link no-auther number-surfix)
+# TODO remove keyword regix
+# TODO refactor
+# TODO colored logging and enable/disable debug log option.
+# TODO Test
+# TODO pip release
+#
+
 import subprocess
 import sys
 import argparse
+# it might be better to use coloredlogs
+import logging
 from enum import Enum
 from collections import namedtuple
 import re
+
+logging.basicConfig(format='%(asctime)s %(message)s')
+
 
 PrType = Enum('PrType', 'Feature BugFix Chore HotFix Unknown')
 Mode = Enum('Mode', 'md html')
@@ -73,7 +87,7 @@ if command_arguments.f is not None:
 merges = subprocess.check_output(cmd)
 
 if len(merges) == 0:
-    print('There is no merge logs.')
+    logging.error('There is no merge logs.')
     sys.exit(1)
 
 release_dict = {type_: [] for type_ in PrType}
@@ -83,11 +97,11 @@ for line in merges.splitlines():
     splittedLog = str(line).replace("b\"'", "").replace("'\"", "").split(':')
     # Get PR number
     if len(splittedLog[2]) == 0 or len(splittedLog[3]) == 0:
-        print('Ignore unexpected merge log: ' + str(line))
+        logging.debug('Ignore unexpected merge log: ' + str(line))
         continue
     pr_num = re.search('#[0-9]*', splittedLog[3]).group(0)
     url = REPO_WEB_URL + '/pull/' + pr_num.strip('#')
-    # Format body
+    # Detect PR type
     pr_type = PrType.Unknown
     body = splittedLog[2]
     if bool(re.match('Feature/', body, re.I)):
@@ -111,7 +125,6 @@ for line in merges.splitlines():
                      pr_type=pr_type)
     release_dict[pr_type].append(info)
 
-# TODO Support multiple repos
 # Convert to target style
 if command_arguments.style == Mode.md.name:
     # markdown with full info
@@ -138,6 +151,3 @@ elif command_arguments.style == Mode.html.name:
 else:
     print('Invalid style.')
     sys.exit(1)
-
-# TODO Output to new file
-# TODO add to an existing file
