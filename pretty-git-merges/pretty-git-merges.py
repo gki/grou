@@ -80,8 +80,15 @@ for type_ in release_dict:
               ' `{0.commit}` {0.body} by {0.auther}'.format(info))
     print('\n')
 
-# TODO html style
-
+# html style
+for type_ in release_dict:
+    print('<h1>' + type_.name + '</h1>')
+    print('<ul>')
+    for info in release_dict[type_]:
+        print('<li><a href="{0.pr_url}">[PR{0.pr_num}]</a>'
+              ' <code>{0.commit}</code> {0.body}'
+              ' by {0.auther}</li>'.format(info))
+    print('</ul>')
 
 # TODO Output to new file
 # TODO add to an existing file
