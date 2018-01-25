@@ -71,12 +71,18 @@ parser.add_argument('-b', '--branch',
                          ' Default is master.',
                     default='master',
                     required=False)
-parser.add_argument('-o', '--output',
-                    type=str,
-                    help='Output file path. If ommitted, just show terminal.',
-                    required=False)
+parser.add_argument('--debug',
+                    action='store_true',
+                    default=False,
+                    help='Show debug log if this flag is set (default: False)')
+parser.add_argument('--use-commit-body',
+                    action='store_true',
+                    default=False,
+                    help='Use commit log body to lines of the release list.'
+                         ' If not set, commit log subject will be used.'
+                         ' (default: False)')
 command_arguments = parser.parse_args()
-
+print(command_arguments)
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
 # use inputted branch name
 cmd = 'git log --first-parent ' + command_arguments.branch \
@@ -115,10 +121,12 @@ for line in merges.splitlines():
     elif bool(re.match('HotFix/', body, re.I)):
         pr_type = PrType.HotFix
 
-    if pr_type != PrType.Unknown:
+    # Format body
+    if command_arguments.use_commit_body is False:
+        body = splittedLog[3]
+    elif pr_type != PrType.Unknown:
         body = body.split('/', 1)[1]
 
-    # Detect PR type
     info = MergeInfo(commit=str(splittedLog[0]),
                      auther=splittedLog[1],
                      body=body.title(),
