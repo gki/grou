@@ -77,6 +77,11 @@ parser.add_argument('--use-commit-body',
                     help='Use commit log body to lines of the release list.'
                          ' If not set, commit log subject will be used.'
                          ' (default: False)')
+parser.add_argument('--no-auther',
+                    action='store_true',
+                    default=False,
+                    help='Stop to add commit auther name for each line.'
+                         ' (default: False)')
 command_arguments = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
@@ -170,15 +175,20 @@ def create_list_end(style):
         return ''
 
 
-def create_list(style, info):
+def create_list(style, info, no_auther):
     """Return a string from merge info string for the style."""
     if style == Mode.md.name:
-        return ('- [PR{0.review_num}]({0.review_url})'
-                ' `{0.commit}` {0.body} by {0.auther}'.format(info))
+        each_list = ('- [PR{0.review_num}]({0.review_url})'
+                     ' `{0.commit}` {0.body}'.format(info))
+        if no_auther is False:
+            each_list = each_list + ' by {0.auther}'.format(info)
+        return each_list
     elif style == Mode.html.name:
-        return ('<li><a href="{0.review_url}">[PR{0.review_num}]</a>'
-                ' <code>{0.commit}</code> {0.body}'
-                ' by {0.auther}</li>'.format(info))
+        each_list = ('<li><a href="{0.review_url}">[PR{0.review_num}]</a>'
+                     ' <code>{0.commit}</code> {0.body}'.format(info))
+        if no_auther is False:
+            each_list = each_list + ' by {0.auther}</li>'.format(info)
+        return each_list
     else:
         return ''
 
@@ -190,5 +200,5 @@ for purpose in release_dict:
     print(create_section_title(command_arguments.style, purpose))
     print(create_list_start(command_arguments.style))
     for info in release_dict[purpose]:
-        print(create_list(command_arguments.style, info))
+        print(create_list(command_arguments.style, info, command_arguments.no_auther))
     print(create_list_end(command_arguments.style))
