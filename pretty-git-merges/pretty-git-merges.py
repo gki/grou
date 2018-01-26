@@ -87,6 +87,11 @@ parser.add_argument('--no-link',
                     default=False,
                     help='Stop to add link for each review number.'
                          ' (default: False)')
+parser.add_argument('--no-hash',
+                    action='store_true',
+                    default=False,
+                    help='Stop to add commit hash for each line.'
+                         ' (default: False)')
 args = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
@@ -184,14 +189,18 @@ def create_list(style, info, options):
     """Return a string from merge info string for the style."""
     texts = []
     if style == Mode.md.name:
-        texts.append('- [PR{0.review_num}]'.format(info))
-        if options.no_link is False:
-            texts.append('{0.review_url})'.format(info))
-        texts.append(' `{0.commit}` {0.body}'.format(info))
+        texts.append('-')
+
+        if options.no_hash is False:
+            texts.append(' `{0.commit}`'.format(info))
+        texts.append(' {0.body}'.format(info))
+
         if options.no_auther is False:
             texts.append(' by {0.auther}'.format(info))
     elif style == Mode.html.name:
         texts.append('<li>')
+        if options.no_hash is False:
+            texts.append(' <code>{0.commit}</code>'.format(info))
         if options.no_link is False:
             texts.append('<a href="{0.review_url}">'.format(info))
         texts.append('PR{0.review_num}'.format(info))
@@ -202,6 +211,7 @@ def create_list(style, info, options):
             texts.append(' by {0.auther}</li>'.format(info))
     return ''.join(texts)
 
+    return ''.join(texts)
 
 
 # Convert to target style
