@@ -26,16 +26,16 @@ from enum import Enum
 from collections import namedtuple
 import re
 
-PrType = Enum('PrType', 'Feature BugFix Chore HotFix Unknown')
+Purpose = Enum('Purpose', 'Feature BugFix Chore HotFix Unknown')
 Mode = Enum('Mode', 'md html')
 
 MergeInfo = namedtuple('MergeInfo', (
     'commit',
     'auther',
     'body',
-    'pr_num',
-    'pr_url',
-    'pr_type')
+    'review_num',
+    'review_url',
+    'purpose')
 )
 
 # Check arges
@@ -102,7 +102,7 @@ if len(merges) == 0:
     logging.error('There is no merge logs.')
     sys.exit(1)
 
-release_dict = {type_: [] for type_ in PrType}
+release_dict = {purpose: [] for purpose in Purpose}
 
 for line in merges.splitlines():
     logging.debug('rawline = ' + str(line))
@@ -112,57 +112,83 @@ for line in merges.splitlines():
     if len(splittedLog[2]) == 0 or len(splittedLog[3]) == 0:
         logging.debug('Ignore unexpected merge log: ' + str(line))
         continue
-    pr_num = re.search('#[0-9]*', splittedLog[3]).group(0)
-    url = REPO_WEB_URL + '/pull/' + pr_num.strip('#')
+    review_num = re.search('#[0-9]*', splittedLog[3]).group(0)
+    url = REPO_WEB_URL + '/pull/' + review_num.strip('#')
     # Detect PR type
-    pr_type = PrType.Unknown
+    purpose = Purpose.Unknown
     body = splittedLog[2]
     if bool(re.match('Feature/', body, re.I)):
-        pr_type = PrType.Feature
+        purpose = Purpose.Feature
     elif bool(re.match('Bug[fix]*/', body, re.I)):
-        pr_type = PrType.BugFix
+        purpose = Purpose.BugFix
     elif bool(re.match('Chore/', body, re.I)):
-        pr_type = PrType.Chore
+        purpose = Purpose.Chore
     elif bool(re.match('HotFix/', body, re.I)):
-        pr_type = PrType.HotFix
+        purpose = Purpose.HotFix
 
     # Format body
     if command_arguments.use_commit_body is False:
         body = splittedLog[3]
-    elif pr_type != PrType.Unknown:
+    elif purpose != Purpose.Unknown:
         body = body.split('/', 1)[1]
 
     info = MergeInfo(commit=str(splittedLog[0]),
                      auther=splittedLog[1],
                      body=body.title(),
-                     pr_url=url,
-                     pr_num=pr_num,
-                     pr_type=pr_type)
-    release_dict[pr_type].append(info)
+                     review_url=url,
+                     review_num=review_num,
+                     purpose=purpose)
+    release_dict[purpose].append(info)
+    logging.debug(info)
+
+
+def create_section_title(style, purpose_name):
+    """Return section title by using purpose name."""
+    if style == Mode.md.name:
+        return '# ' + purpose.name
+    elif style == Mode.html.name:
+        return '<h1>' + purpose.name + '</h1>'
+    else:
+        return ''
+
+
+def create_list_start(style):
+    """Return start string for the style."""
+    if style == Mode.html.name:
+        return '<ul>'
+    else:
+        return ''
+
+
+def create_list_end(style):
+    """Return end string for the style."""
+    if style == Mode.md.name:
+        return '\n'
+    elif style == Mode.html.name:
+        return '</ul>'
+    else:
+        return ''
+
+
+def create_list(style, info):
+    """Return a string from merge info string for the style."""
+    if style == Mode.md.name:
+        return ('- [PR{0.review_num}]({0.review_url})'
+                ' `{0.commit}` {0.body} by {0.auther}'.format(info))
+    elif style == Mode.html.name:
+        return ('<li><a href="{0.review_url}">[PR{0.review_num}]</a>'
+                ' <code>{0.commit}</code> {0.body}'
+                ' by {0.auther}</li>'.format(info))
+    else:
+        return ''
+
 
 # Convert to target style
-if command_arguments.style == Mode.md.name:
-    # markdown with full info
-    for type_ in release_dict:
-        if len(release_dict[type_]) == 0:
-            continue
-        print('# ' + type_.name)
-        for info in release_dict[type_]:
-            print('- [PR{0.pr_num}]({0.pr_url})'
-                  ' `{0.commit}` {0.body} by {0.auther}'.format(info))
-        print('\n')
-elif command_arguments.style == Mode.html.name:
-    # html style with full info
-    for type_ in release_dict:
-        if len(release_dict[type_]) == 0:
-            continue
-        print('<h1>' + type_.name + '</h1>')
-        print('<ul>')
-        for info in release_dict[type_]:
-            print('<li><a href="{0.pr_url}">[PR{0.pr_num}]</a>'
-                  ' <code>{0.commit}</code> {0.body}'
-                  ' by {0.auther}</li>'.format(info))
-        print('</ul>')
-else:
-    print('Invalid style.')
-    sys.exit(1)
+for purpose in release_dict:
+    if len(release_dict[purpose]) == 0:
+        continue
+    print(create_section_title(command_arguments.style, purpose))
+    print(create_list_start(command_arguments.style))
+    for info in release_dict[purpose]:
+        print(create_list(command_arguments.style, info))
+    print(create_list_end(command_arguments.style))
