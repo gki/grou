@@ -10,7 +10,6 @@ args:
 hogehoge
 """
 
-# TODO list format option (no-number no-link no-auther number-surfix)
 # TODO remove keyword regix
 # TODO refactor
 # TODO Test
@@ -102,12 +101,6 @@ parser.add_argument('--show-review-num',
                     required=False)
 args = parser.parse_args()
 
-REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
-# use inputted branch name
-cmd = 'git log --first-parent ' + args.branch \
-      + ' --merges --pretty=format:\'%h:%an:%b:%s\''
-cmd = cmd.split(" ")
-
 # Log level setting
 loglevel = logging.ERROR
 if args.debug:
@@ -115,6 +108,25 @@ if args.debug:
 logging.basicConfig(format='%(asctime)s %(levelname)s'
                            ' %(message)s', level=loglevel)
 logging.debug(args)
+
+# get organization and repo name from git config.
+cmd = 'git config remote.origin.url'.split(' ')
+remote_url = subprocess.check_output(cmd)
+if len(remote_url) == 0:
+    logging.error('No remote.origin.url setting for git. Please set origin.\n'
+                  'e.g.) '
+                  'git remote add origin git@github.com:yourorg/yourrepo.git')
+    sys.exit(1)
+
+REPO_WEB_URL = str(remote_url).strip('b\'\\n') \
+                              .replace(':', '/') \
+                              .replace('git@', 'https://') \
+                              .replace('.git', '')
+
+# use inputted branch name
+cmd = 'git log --first-parent ' + args.branch \
+      + ' --merges --pretty=format:\'%h:%an:%b:%s\''
+cmd = cmd.split(" ")
 
 # Set from-to tag or commit id
 if args.f is not None:
