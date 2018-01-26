@@ -17,26 +17,11 @@ hogehoge
 
 import subprocess
 import sys
-# import argparse
 # it might be better to use coloredlogs
 import logging
-from enum import Enum
-from collections import namedtuple
 import re
 import argument_helper
-
-Purpose = Enum('Purpose', 'Feature BugFix Chore HotFix Unknown')
-ReviewNumPlace = Enum('ReviewNumPlace', 'head tail none')
-Mode = Enum('Mode', 'md html')
-
-MergeInfo = namedtuple('MergeInfo', (
-    'commit',
-    'auther',
-    'body',
-    'review_num',
-    'review_url',
-    'purpose')
-)
+from common import Purpose, ReviewNumPlace, Mode, MergeInfo
 
 args = argument_helper.setup_args()
 
