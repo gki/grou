@@ -52,7 +52,7 @@ REPO_WEB_URL = remote_url.decode('utf-8') \
 # use inputted branch name
 cmd = 'git log --first-parent ' + args.branch \
       + ' --merges --pretty=format:%h:%an:%b:%s'
-cmd = cmd.split(" ")
+cmd = cmd.split(' ')
 
 # Set from-to tag or commit id
 if args.f is not None:
