@@ -82,6 +82,11 @@ parser.add_argument('--no-auther',
                     default=False,
                     help='Stop to add commit auther name for each line.'
                          ' (default: False)')
+parser.add_argument('--no-link',
+                    action='store_true',
+                    default=False,
+                    help='Stop to add link for each review number.'
+                         ' (default: False)')
 args = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
@@ -175,22 +180,28 @@ def create_list_end(style):
         return ''
 
 
-def create_list(style, info, no_auther):
+def create_list(style, info, options):
     """Return a string from merge info string for the style."""
+    texts = []
     if style == Mode.md.name:
-        each_list = ('- [PR{0.review_num}]({0.review_url})'
-                     ' `{0.commit}` {0.body}'.format(info))
-        if no_auther is False:
-            each_list = each_list + ' by {0.auther}'.format(info)
-        return each_list
+        texts.append('- [PR{0.review_num}]'.format(info))
+        if options.no_link is False:
+            texts.append('{0.review_url})'.format(info))
+        texts.append(' `{0.commit}` {0.body}'.format(info))
+        if options.no_auther is False:
+            texts.append(' by {0.auther}'.format(info))
     elif style == Mode.html.name:
-        each_list = ('<li><a href="{0.review_url}">[PR{0.review_num}]</a>'
-                     ' <code>{0.commit}</code> {0.body}'.format(info))
-        if no_auther is False:
-            each_list = each_list + ' by {0.auther}</li>'.format(info)
-        return each_list
-    else:
-        return ''
+        texts.append('<li>')
+        if options.no_link is False:
+            texts.append('<a href="{0.review_url}">'.format(info))
+        texts.append('PR{0.review_num}'.format(info))
+        if options.no_link is False:
+            texts.append('</a>'.format(info))
+        texts.append(' <code>{0.commit}</code> {0.body}'.format(info))
+        if options.no_auther is False:
+            texts.append(' by {0.auther}</li>'.format(info))
+    return ''.join(texts)
+
 
 
 # Convert to target style
@@ -200,5 +211,5 @@ for purpose in release_dict:
     print(create_section_title(args.style, purpose))
     print(create_list_start(args.style))
     for info in release_dict[purpose]:
-        print(create_list(args.style, info, args.no_auther))
+        print(create_list(args.style, info, args))
     print(create_list_end(args.style))
