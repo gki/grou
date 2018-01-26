@@ -27,6 +27,7 @@ from collections import namedtuple
 import re
 
 Purpose = Enum('Purpose', 'Feature BugFix Chore HotFix Unknown')
+ReviewNumPlace = Enum('ReviewNumPlace', 'head tail none')
 Mode = Enum('Mode', 'md html')
 
 MergeInfo = namedtuple('MergeInfo', (
@@ -92,6 +93,13 @@ parser.add_argument('--no-hash',
                     default=False,
                     help='Stop to add commit hash for each line.'
                          ' (default: False)')
+parser.add_argument('--show-review-num',
+                    type=str,
+                    help='The place where the review number should be put.'
+                         ' Default is head.',
+                    choices=['head', 'tail', 'none'],
+                    default='head',
+                    required=False)
 args = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
@@ -124,7 +132,8 @@ for line in merges.splitlines():
     # create dictionary for each merge log.
     splittedLog = str(line).replace("b\"'", "").replace("'\"", "").split(':')
     # Get PR number
-    if len(splittedLog[2]) == 0 or len(splittedLog[3]) == 0:
+    if len(splittedLog[2]) == 0 or len(splittedLog[3]) == 0 \
+            or re.search('#[0-9]*', splittedLog[3]) is None:
         logging.debug('Ignore unexpected merge log: ' + str(line))
         continue
     review_num = re.search('#[0-9]*', splittedLog[3]).group(0)
@@ -188,6 +197,7 @@ def create_list_end(style):
 def create_list(style, info, options):
     """Return a string from merge info string for the style."""
     texts = []
+    review_num_texts = []
     if style == Mode.md.name:
         texts.append('-')
 
@@ -197,19 +207,33 @@ def create_list(style, info, options):
 
         if options.no_auther is False:
             texts.append(' by {0.auther}'.format(info))
+
+        # create review number and link
+        review_num_texts.append(' [PR{0.review_num}]'.format(info))
+        if options.no_link is False:
+            review_num_texts.append('({0.review_url})'.format(info))
+
     elif style == Mode.html.name:
         texts.append('<li>')
         if options.no_hash is False:
             texts.append(' <code>{0.commit}</code>'.format(info))
-        if options.no_link is False:
-            texts.append('<a href="{0.review_url}">'.format(info))
-        texts.append('PR{0.review_num}'.format(info))
-        if options.no_link is False:
-            texts.append('</a>'.format(info))
-        texts.append(' <code>{0.commit}</code> {0.body}'.format(info))
+        texts.append(' {0.body}'.format(info))
         if options.no_auther is False:
-            texts.append(' by {0.auther}</li>'.format(info))
-    return ''.join(texts)
+            texts.append(' by {0.auther}'.format(info))
+
+        # create review number and link
+        if options.no_link is False:
+            review_num_texts.append('<a href="{0.review_url}">'.format(info))
+        review_num_texts.append('PR{0.review_num}'.format(info))
+        if options.no_link is False:
+            review_num_texts.append('</a>'.format(info))
+        texts.append('</li>')
+ 
+    # insert or append review number and link
+    if options.show_review_num == ReviewNumPlace.head.name:
+        texts.insert(1, ''.join(review_num_texts))
+    elif options.show_review_num == ReviewNumPlace.tail.name:
+        texts.extend(review_num_texts)
 
     return ''.join(texts)
 
