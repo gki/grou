@@ -118,14 +118,16 @@ if len(remote_url) == 0:
                   'git remote add origin git@github.com:yourorg/yourrepo.git')
     sys.exit(1)
 
-REPO_WEB_URL = str(remote_url).strip('b\'\\n') \
-                              .replace(':', '/') \
-                              .replace('git@', 'https://') \
-                              .replace('.git', '')
+# TODO Currently confimed only Github. Should check other service like GitLab.
+REPO_WEB_URL = remote_url.decode('utf-8') \
+                         .replace('\n', '') \
+                         .replace(':', '/') \
+                         .replace('git@', 'https://') \
+                         .replace('.git', '')
 
 # use inputted branch name
 cmd = 'git log --first-parent ' + args.branch \
-      + ' --merges --pretty=format:\'%h:%an:%b:%s\''
+      + ' --merges --pretty=format:%h:%an:%b:%s'
 cmd = cmd.split(" ")
 
 # Set from-to tag or commit id
@@ -142,7 +144,7 @@ release_dict = {purpose: [] for purpose in Purpose}
 for line in merges.splitlines():
     logging.debug('rawline = ' + str(line))
     # create dictionary for each merge log.
-    splittedLog = str(line).replace("b\"'", "").replace("'\"", "").split(':')
+    splittedLog = line.decode('utf-8').split(':')
     # Get PR number
     if len(splittedLog[2]) == 0 or len(splittedLog[3]) == 0 \
             or re.search('#[0-9]*', splittedLog[3]) is None:
