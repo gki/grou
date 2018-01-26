@@ -99,6 +99,14 @@ parser.add_argument('--show-review-num',
                     choices=['head', 'tail', 'none'],
                     default='head',
                     required=False)
+parser.add_argument('--remove-regix',
+                    type=str,
+                    help='Regix to remove specific texts from each line.',
+                    required=False)
+parser.add_argument('--remove-regix-i',
+                    type=str,
+                    help='Regix to remove specific texts from each line.',
+                    required=False)
 args = parser.parse_args()
 
 # Log level setting
@@ -169,6 +177,16 @@ for line in merges.splitlines():
         body = splittedLog[3]
     elif purpose != Purpose.Unknown:
         body = body.split('/', 1)[1]
+
+    # remove text by using option
+    if args.remove_regix:
+        logging.debug('before = ' + body)
+        body = re.sub(args.remove_regix, '', body).strip()
+        logging.debug('after  = ' + body)
+    if args.remove_regix_i:
+        logging.debug('before = ' + body)
+        body = re.sub(args.remove_regix_i, '', body, flags=re.I).strip()
+        logging.debug('after  = ' + body)
 
     info = MergeInfo(commit=str(splittedLog[0]),
                      auther=splittedLog[1],
@@ -242,7 +260,7 @@ def create_list(style, info, options):
         if options.no_link is False:
             review_num_texts.append('</a>'.format(info))
         texts.append('</li>')
- 
+
     # insert or append review number and link
     if options.show_review_num == ReviewNumPlace.head.name:
         texts.insert(1, ''.join(review_num_texts))
