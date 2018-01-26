@@ -13,7 +13,6 @@ hogehoge
 # TODO list format option (no-number no-link no-auther number-surfix)
 # TODO remove keyword regix
 # TODO refactor
-# TODO colored logging and enable/disable debug log option.
 # TODO Test
 # TODO pip release
 #
@@ -26,9 +25,6 @@ import logging
 from enum import Enum
 from collections import namedtuple
 import re
-
-logging.basicConfig(format='%(asctime)s %(message)s')
-
 
 PrType = Enum('PrType', 'Feature BugFix Chore HotFix Unknown')
 Mode = Enum('Mode', 'md html')
@@ -82,12 +78,20 @@ parser.add_argument('--use-commit-body',
                          ' If not set, commit log subject will be used.'
                          ' (default: False)')
 command_arguments = parser.parse_args()
-print(command_arguments)
+
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
 # use inputted branch name
 cmd = 'git log --first-parent ' + command_arguments.branch \
       + ' --merges --pretty=format:\'%h:%an:%b:%s\''
 cmd = cmd.split(" ")
+
+# Log level setting
+loglevel = logging.ERROR
+if command_arguments.debug:
+    loglevel = logging.DEBUG
+logging.basicConfig(format='%(asctime)s %(levelname)s'
+                           ' %(message)s', level=loglevel)
+logging.debug(command_arguments)
 
 # Set from-to tag or commit id
 if command_arguments.f is not None:
@@ -101,6 +105,7 @@ if len(merges) == 0:
 release_dict = {type_: [] for type_ in PrType}
 
 for line in merges.splitlines():
+    logging.debug('rawline = ' + str(line))
     # create dictionary for each merge log.
     splittedLog = str(line).replace("b\"'", "").replace("'\"", "").split(':')
     # Get PR number
