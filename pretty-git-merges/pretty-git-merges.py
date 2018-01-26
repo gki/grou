@@ -82,25 +82,25 @@ parser.add_argument('--no-auther',
                     default=False,
                     help='Stop to add commit auther name for each line.'
                          ' (default: False)')
-command_arguments = parser.parse_args()
+args = parser.parse_args()
 
 REPO_WEB_URL = 'https://github.com/LemonadeLabInc/lemonade-type-R'
 # use inputted branch name
-cmd = 'git log --first-parent ' + command_arguments.branch \
+cmd = 'git log --first-parent ' + args.branch \
       + ' --merges --pretty=format:\'%h:%an:%b:%s\''
 cmd = cmd.split(" ")
 
 # Log level setting
 loglevel = logging.ERROR
-if command_arguments.debug:
+if args.debug:
     loglevel = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(levelname)s'
                            ' %(message)s', level=loglevel)
-logging.debug(command_arguments)
+logging.debug(args)
 
 # Set from-to tag or commit id
-if command_arguments.f is not None:
-    cmd.append(command_arguments.f + '..' + command_arguments.t)
+if args.f is not None:
+    cmd.append(args.f + '..' + args.t)
 merges = subprocess.check_output(cmd)
 
 if len(merges) == 0:
@@ -132,7 +132,7 @@ for line in merges.splitlines():
         purpose = Purpose.HotFix
 
     # Format body
-    if command_arguments.use_commit_body is False:
+    if args.use_commit_body is False:
         body = splittedLog[3]
     elif purpose != Purpose.Unknown:
         body = body.split('/', 1)[1]
@@ -197,8 +197,8 @@ def create_list(style, info, no_auther):
 for purpose in release_dict:
     if len(release_dict[purpose]) == 0:
         continue
-    print(create_section_title(command_arguments.style, purpose))
-    print(create_list_start(command_arguments.style))
+    print(create_section_title(args.style, purpose))
+    print(create_list_start(args.style))
     for info in release_dict[purpose]:
-        print(create_list(command_arguments.style, info, command_arguments.no_auther))
-    print(create_list_end(command_arguments.style))
+        print(create_list(args.style, info, args.no_auther))
+    print(create_list_end(args.style))
