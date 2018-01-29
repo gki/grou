@@ -21,6 +21,7 @@ import sys
 import logging
 import re
 import argument_helper
+from merge_info_formatter import OutputFomatterFactory
 from common import Purpose, ReviewNumPlace, Mode, MergeInfo
 
 args = argument_helper.setup_args()
@@ -187,11 +188,12 @@ def create_list(style, info, options):
 
 
 # Convert to target style
+formatter = OutputFomatterFactory.create(args.style)
 for purpose in release_dict:
     if len(release_dict[purpose]) == 0:
         continue
-    print(create_section_title(args.style, purpose))
-    print(create_list_start(args.style))
+    print(formatter.create_section_title(purpose.name))
+    print(formatter.create_list_start())
     for info in release_dict[purpose]:
-        print(create_list(args.style, info, args))
-    print(create_list_end(args.style))
+        print(formatter.create_list(info, args))
+    print(formatter.create_list_end())
