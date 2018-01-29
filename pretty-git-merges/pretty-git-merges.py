@@ -22,7 +22,7 @@ import logging
 import re
 import argument_helper
 from merge_info_formatter import OutputFomatterFactory
-from common import Purpose, ReviewNumPlace, Mode, MergeInfo
+from common import Purpose, MergeInfo
 
 args = argument_helper.setup_args()
 
@@ -113,79 +113,6 @@ for line in merges.splitlines():
                      purpose=purpose)
     release_dict[purpose].append(info)
     logging.debug(info)
-
-
-def create_section_title(style, purpose_name):
-    """Return section title by using purpose name."""
-    if style == Mode.md.name:
-        return '# ' + purpose.name
-    elif style == Mode.html.name:
-        return '<h1>' + purpose.name + '</h1>'
-    else:
-        return ''
-
-
-def create_list_start(style):
-    """Return start string for the style."""
-    if style == Mode.html.name:
-        return '<ul>'
-    else:
-        return ''
-
-
-def create_list_end(style):
-    """Return end string for the style."""
-    if style == Mode.md.name:
-        return '\n'
-    elif style == Mode.html.name:
-        return '</ul>'
-    else:
-        return ''
-
-
-def create_list(style, info, options):
-    """Return a string from merge info string for the style."""
-    texts = []
-    review_num_texts = []
-    if style == Mode.md.name:
-        texts.append('-')
-
-        if options.no_hash is False:
-            texts.append(' `{0.commit}`'.format(info))
-        texts.append(' {0.body}'.format(info))
-
-        if options.no_auther is False:
-            texts.append(' by {0.auther}'.format(info))
-
-        # create review number and link
-        review_num_texts.append(' [PR{0.review_num}]'.format(info))
-        if options.no_link is False:
-            review_num_texts.append('({0.review_url})'.format(info))
-
-    elif style == Mode.html.name:
-        texts.append('<li>')
-        if options.no_hash is False:
-            texts.append(' <code>{0.commit}</code>'.format(info))
-        texts.append(' {0.body}'.format(info))
-        if options.no_auther is False:
-            texts.append(' by {0.auther}'.format(info))
-
-        # create review number and link
-        if options.no_link is False:
-            review_num_texts.append('<a href="{0.review_url}">'.format(info))
-        review_num_texts.append('PR{0.review_num}'.format(info))
-        if options.no_link is False:
-            review_num_texts.append('</a>'.format(info))
-        texts.append('</li>')
-
-    # insert or append review number and link
-    if options.show_review_num == ReviewNumPlace.head.name:
-        texts.insert(1, ''.join(review_num_texts))
-    elif options.show_review_num == ReviewNumPlace.tail.name:
-        texts.extend(review_num_texts)
-
-    return ''.join(texts)
-
 
 # Convert to target style
 formatter = OutputFomatterFactory.create(args.style)
