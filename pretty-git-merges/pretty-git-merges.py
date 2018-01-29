@@ -22,47 +22,10 @@ import logging
 import re
 import argument_helper
 from merge_info_formatter import OutputFomatterFactory
-from common import Purpose, MergeInfo
+from common import Purpose, setup_commandline_args, setup_logger
 
-args = argument_helper.setup_args()
-
-# Log level setting from command line args
-loglevel = logging.ERROR
-if args.debug:
-    loglevel = logging.DEBUG
-logging.basicConfig(format='%(asctime)s %(levelname)s'
-                           ' %(message)s', level=loglevel)
-logging.debug(args)
-
-# get organization and repo name from git config.
-cmd = 'git config remote.origin.url'.split(' ')
-remote_url = subprocess.check_output(cmd)
-if len(remote_url) == 0:
-    logging.error('No remote.origin.url setting for git. Please set origin.\n'
-                  'e.g.) '
-                  'git remote add origin git@github.com:yourorg/yourrepo.git')
-    sys.exit(1)
-
-# TODO Currently confimed only Github. Should check other service like GitLab.
-REPO_WEB_URL = remote_url.decode('utf-8') \
-                         .replace('\n', '') \
-                         .replace(':', '/') \
-                         .replace('git@', 'https://') \
-                         .replace('.git', '')
-
-# use inputted branch name
-cmd = 'git log --first-parent ' + args.branch \
-      + ' --merges --pretty=format:%h:%an:%b:%s'
-cmd = cmd.split(' ')
-
-# Set from-to tag or commit id
-if args.f is not None:
-    cmd.append(args.f + '..' + args.t)
-merges = subprocess.check_output(cmd)
-
-if len(merges) == 0:
-    logging.error('There is no merge logs.')
-    sys.exit(1)
+args = setup_commandline_args()
+setup_logger(args.debug)
 
 release_dict = {purpose: [] for purpose in Purpose}
 
