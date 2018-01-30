@@ -25,7 +25,7 @@ def setup_logger(enable_debug):
     loglevel = logging.ERROR
     if enable_debug:
         loglevel = logging.DEBUG
-    logging.basicConfig(format='%(asctime)s %(levelname)s'
+    logging.basicConfig(format='%(asctime)s [%(levelname)s]'
                                ' %(message)s', level=loglevel)
 
 
