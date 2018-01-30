@@ -2,7 +2,7 @@
 """Formatter classes and their factory class."""
 
 from common import Mode, ReviewNumPlace
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 
 class OutputFomatterFactory():
@@ -19,8 +19,10 @@ class OutputFomatterFactory():
             raise ValueError('Unexpected style: ' + style_name)
 
 
-class AbstractOutputFormatter(ABC):
+class AbstractOutputFormatter():
     """Abstract class for formatter."""
+
+    __metaclass__ = ABCMeta
 
     @abstractmethod
     def create_section_title(self, purpose_name):

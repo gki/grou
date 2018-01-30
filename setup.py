@@ -2,6 +2,8 @@
 
 from setuptools import setup
 
+requires = ["enum34"]
+
 setup(
     name='pretty-git-merges',
     version='0.1.0',
@@ -17,4 +19,5 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3.6',
     ],
+    install_requires=requires,
 )
