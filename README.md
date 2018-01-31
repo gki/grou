@@ -1,2 +1,2 @@
-# pretty-git-merges
+# grou
 WIP
