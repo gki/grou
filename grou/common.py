@@ -19,6 +19,11 @@ MergeInfo = namedtuple('MergeInfo', (
     'purpose')
 )
 
+DESCRIPTIOON = \
+    'grou stands for Git Release note OUtput command.\n' \
+    'Currently grou output the release note info from git merge log.\n'\
+    'Othre git log info like "commitizen" style are not supported for now.'
+
 
 def setup_logger(enable_debug):
     """Log level setting from command line args."""
@@ -31,8 +36,7 @@ def setup_logger(enable_debug):
 
 def setup_commandline_args():
     """Setup argparse and Taple of regurn command line args."""
-    parser = argparse.ArgumentParser(
-        description='grou stands for Git Release note OUtput command.')
+    parser = argparse.ArgumentParser(description=DESCRIPTIOON)
     parser.add_argument('-f', '--from',
                         type=str,
                         dest='f',

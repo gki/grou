@@ -1,6 +1,7 @@
 """Setup.py for pip distribution."""
 
 from setuptools import setup
+from grou.common import DESCRIPTIOON
 
 requires = ['enum34',
             'future']
@@ -8,7 +9,7 @@ requires = ['enum34',
 setup(
     name='grou',
     version='0.1.1',
-    description='grou stands for Git Release note OUtput command.',
+    description=DESCRIPTIOON,
     url='https://github.com/gki/grou',
     author='Gen Takeda',
     author_email='gki.penguin@gmail.com',
