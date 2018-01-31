@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Main script for pretty git merges."""
+"""Main script for grou."""
 
 # TODO Test
 # TODO pip release

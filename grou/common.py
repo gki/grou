@@ -32,7 +32,7 @@ def setup_logger(enable_debug):
 def setup_commandline_args():
     """Setup argparse and Taple of regurn command line args."""
     parser = argparse.ArgumentParser(
-        description='Output pretty formatted git merge info.')
+        description='grou stands for Git Release note OUtput command.')
     parser.add_argument('-f', '--from',
                         type=str,
                         dest='f',
