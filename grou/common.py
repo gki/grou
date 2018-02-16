@@ -12,7 +12,7 @@ ReviewNumPlace = Enum('ReviewNumPlace', 'head tail none')
 Mode = Enum('Mode', 'md html')
 MergeInfo = namedtuple('MergeInfo', (
     'commit',
-    'auther',
+    'author',
     'body',
     'review_num',
     'review_url',
@@ -75,10 +75,10 @@ def setup_commandline_args():
                              ' lines of the release list.'
                              ' If not set, commit log subject will be used.'
                              ' (default: False)')
-    parser.add_argument('--no-auther',
+    parser.add_argument('--no-author',
                         action='store_true',
                         default=False,
-                        help='Stop to add commit auther name for each line.'
+                        help='Stop to add commit author name for each line.'
                              ' (default: False)')
     parser.add_argument('--no-link',
                         action='store_true',

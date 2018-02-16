@@ -48,7 +48,7 @@ def convert_to_info(base_url, line, options):
         logging.debug('after  = ' + body)
 
     info = MergeInfo(commit=str(splitted_log[0]),
-                     auther=splitted_log[1],
+                     author=splitted_log[1],
                      body=body.title(),
                      review_url=url,
                      review_num=review_num,

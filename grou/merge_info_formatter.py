@@ -81,8 +81,8 @@ class MarkdownOutputFormatter(AbstractOutputFormatter):
 
         texts.append(' {0.body}'.format(info))
 
-        if options.no_auther is False:
-            texts.append(' by {0.auther}'.format(info))
+        if options.no_author is False:
+            texts.append(' by {0.author}'.format(info))
 
         # create review number and link
         review_num_texts.append(' [PR{0.review_num}]'.format(info))
@@ -119,8 +119,8 @@ class HtmlOutputFormatter(AbstractOutputFormatter):
         if options.no_hash is False:
             texts.append(' <code>{0.commit}</code>'.format(info))
         texts.append(' {0.body}'.format(info))
-        if options.no_auther is False:
-            texts.append(' by {0.auther}'.format(info))
+        if options.no_author is False:
+            texts.append(' by {0.author}'.format(info))
 
         # create review number and link
         if options.no_link is False:
