@@ -8,7 +8,7 @@ requires = ['enum34',
 
 setup(
     name='grou',
-    version='0.1.3',
+    version='0.1.4',
     description=DESCRIPTIOON,
     url='https://github.com/gki/grou',
     author='Gen Takeda',
