@@ -79,7 +79,7 @@ class MarkdownOutputFormatter(AbstractOutputFormatter):
         if options.no_hash is False:
             texts.append(' `{0.commit}`'.format(info))
 
-        texts.append(' {0.body}'.format(info))
+        texts.append(u' {0.body}'.format(info))
 
         if options.no_author is False:
             texts.append(' by {0.author}'.format(info))
