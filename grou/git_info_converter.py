@@ -9,13 +9,14 @@ import re
 
 def create_git_merge_logs(branch_name, commitish_from, commitish_to):
     """Create the log text list from git log command."""
-    cmd = 'git log --first-parent ' + branch_name \
+    cmd = 'git log --first-parent' \
           + ' --merges --pretty=format:%h:%an:%b:%s'
     cmd = cmd.split(' ')
 
     # Set from-to tag or commit id
     if commitish_from is not None:
         cmd.append(commitish_from + '..' + commitish_to)
+    logging.debug(cmd)
     merges = subprocess.check_output(cmd)
 
     if len(merges) == 0:
