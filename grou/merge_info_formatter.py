@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Formatter classes and their factory class."""
 from builtins import super
-from common import Mode, ReviewNumPlace
+from grou.common import Mode, ReviewNumPlace
 from abc import ABCMeta, abstractmethod
 
 

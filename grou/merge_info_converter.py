@@ -3,8 +3,8 @@
 
 import logging
 import re
-from git_info_converter import GithubInfoConverter
-from common import Purpose, MergeInfo
+from grou.git_info_converter import GithubInfoConverter
+from grou.common import Purpose, MergeInfo
 
 
 def convert_to_info(base_url, line, options):

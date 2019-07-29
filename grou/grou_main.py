@@ -5,10 +5,10 @@
 # TODO pip release
 
 import logging
-import git_info_converter
-import merge_info_converter
-from merge_info_formatter import OutputFomatterFactory
-from common import Purpose, setup_commandline_args, setup_logger
+from grou import git_info_converter
+from grou import merge_info_converter
+from grou.merge_info_formatter import OutputFomatterFactory
+from grou.common import Purpose, setup_commandline_args, setup_logger
 
 
 def main():

@@ -1,0 +1,1 @@
+from grou.grou_main import main
